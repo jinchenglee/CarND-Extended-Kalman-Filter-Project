@@ -53,11 +53,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
   VectorXd z_pred(3);
-  // Too small px, py
-  if ((abs(x_(0))<1e-3) && (abs(x_(1))<1e-3)) {
-      x_(0) = 1e-3;
-      x_(1) = 1e-3;
-  }
   // Transfer from cartesian to polar coordinates
   z_pred(0) = sqrt(x_(0)*x_(0) + x_(1)*x_(1));
   // Limit returning phi in [-pi, pi]

@@ -104,6 +104,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // Have no idea on vx and vy at all, start with very large variance.
     P_ << 1, 0, 0, 0,
         0, 1, 0, 0,
+        //<<JC>> 0, 0, 1, 0,
+        //<<JC>> 0, 0, 0, 1;
         0, 0, 1000, 0,
         0, 0, 0, 1000;
 
@@ -143,16 +145,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // time stamp
     dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.;
-    // Radar R
-    ekf_.R_ = R_radar_;
-    ekf_.H_ = Hj_;
   }
   else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
     // time stamp
     dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.;
-    // Laser R
-    ekf_.R_ = R_laser_;
-    ekf_.H_ = H_laser_;
   }
   previous_timestamp_ = measurement_pack.timestamp_;
   cout << "dt = " << dt << "\n";
@@ -200,9 +196,24 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+    // Too small px, py
+    if ((abs(ekf_.x_(0))<1e-3) && (abs(ekf_.x_(1))<1e-3)) {
+        ekf_.x_(0) = 1e-3;
+        ekf_.x_(1) = 1e-3;
+    }
+    // Radar R
+    ekf_.R_ = R_radar_;
+    // Jacobian matrix
+    Tools tool;
+    Hj_ = tool.CalculateJacobian(ekf_.x_);
+    ekf_.H_ = Hj_;
     // Radar updates
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
   } else {
+    // Laser R
+    ekf_.R_ = R_laser_;
+    // Measurement matrix
+    ekf_.H_ = H_laser_;
     // Laser updates
     ekf_.Update(measurement_pack.raw_measurements_);
   }
