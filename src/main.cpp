@@ -143,6 +143,7 @@ int main(int argc, char* argv[]) {
     out_file_ << fusionEKF.ekf_.x_(1) << "\t";
     out_file_ << fusionEKF.ekf_.x_(2) << "\t";
     out_file_ << fusionEKF.ekf_.x_(3) << "\t";
+    out_file_ << "\t\t";
 
     // output the measurements
     if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::LASER) {
@@ -156,6 +157,7 @@ int main(int argc, char* argv[]) {
       out_file_ << ro * cos(phi) << "\t"; // p1_meas
       out_file_ << ro * sin(phi) << "\t"; // ps_meas
     }
+    out_file_ << "\t\t";
 
     // output the ground truth packages
     out_file_ << gt_pack_list[k].gt_values_(0) << "\t";

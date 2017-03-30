@@ -88,6 +88,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.x_(3) = 0;
     }
 
+    // Time stamp init
+    previous_timestamp_ = measurement_pack.timestamp_;
+
     // state transfer matrix
     Eigen::MatrixXd F_(4, 4);
     F_ << 1, 0, 1, 0,
@@ -135,23 +138,24 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
   // Delta time elapsed
-  long dt = 0;
+  float dt = 0.;
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // time stamp
-    dt = measurement_pack.timestamp_ - previous_timestamp_;
+    dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.;
     // Radar R
     ekf_.R_ = R_radar_;
     ekf_.H_ = Hj_;
   }
   else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
     // time stamp
-    dt = measurement_pack.timestamp_ - previous_timestamp_;
+    dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.;
     // Laser R
     ekf_.R_ = R_laser_;
     ekf_.H_ = H_laser_;
   }
   previous_timestamp_ = measurement_pack.timestamp_;
+  cout << "dt = " << dt << "\n";
 
   // F update w/ dt
   /**
@@ -170,9 +174,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         dt_3/2*noise_ax, 0, dt_2*noise_ax, 0,
         0, dt_3/2*noise_ay, 0, dt_2*noise_ay;
    */
-  long dt_2 = dt*dt;
-  long dt_3 = dt*dt_2;
-  long dt_4 = dt*dt_3;
+  float dt_2 = dt*dt;
+  float dt_3 = dt*dt_2;
+  float dt_4 = dt*dt_3;
   ekf_.Q_(0,0) = noise_ax*dt_4/4;
   ekf_.Q_(0,2) = noise_ax*dt_3/2;
   ekf_.Q_(1,1) = noise_ay*dt_4/4;
