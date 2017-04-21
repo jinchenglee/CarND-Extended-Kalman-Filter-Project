@@ -1,12 +1,16 @@
-# Extended Kalman Filter Project Starter Code
+# Extended Kalman Filter Project 
 Self-Driving Car Engineer Nanodegree Program
 
 ---
 ## EKF flow chart for this project
-
 ![alt text][ekf_flow_chart]
 
+
+## Experiment result
+![alt_text][ekf_sample_1_result]
+
 [ekf_flow_chart]: ./EKF_flow_chart.png 
+[ekf_sample_1_result]: ./sample-1-ekf.png
 
 ## Dependencies
 
